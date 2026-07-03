@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/Core/">
+    <Project Path="Core/SkolSync.Core.csproj" />
+  </Folder>
+</Solution>
