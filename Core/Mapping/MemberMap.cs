@@ -10,38 +10,15 @@ public enum IdentityStrength
     Strong = 2,
 }
 
-public enum MemberChangeKind
-{
-    NoChange = 0,
-    Create = 1,
-    Update = 2,
-}
-
 public interface IMemberChange
 {
     string MemberName { get; }
-
-    MemberChangeKind Kind { get; }
-
-    object? TargetValue { get; }
-
-    object? DesiredValue { get; }
-
-    bool HasChange { get; }
 }
 
 public sealed record MemberChange<TMember>(
     string MemberName,
-    MemberChangeKind Kind,
     TMember? CurrentValue,
-    TMember DesiredValue) : IMemberChange
-{
-    public bool HasChange => Kind != MemberChangeKind.NoChange;
-
-    object? IMemberChange.TargetValue => CurrentValue;
-
-    object? IMemberChange.DesiredValue => DesiredValue;
-}
+    TMember DesiredValue) : IMemberChange;
 
 public interface IMemberMap<TSource, TTarget>
 {
@@ -53,9 +30,7 @@ public interface IMemberMap<TSource, TTarget>
 
     bool ApplyOnUpdate { get; }
 
-    IMemberChange Compare(TSource source, TTarget target, SyncOperation operation);
-
-    void Apply(TSource source, TTarget target);
+    IMemberChange? Compare(TSource source, TTarget target);
 }
 
 public sealed class MemberMap<TSource, TTarget, TMember> : IMemberMap<TSource, TTarget>
@@ -69,8 +44,8 @@ public sealed class MemberMap<TSource, TTarget, TMember> : IMemberMap<TSource, T
 
         TargetGetter = TargetExpression.Compile();
 
-        TargetMemberInfo = GetTargetMemberInfo(TargetExpression);
-        TargetSetter = CreateTargetSetter(TargetMemberInfo);
+        TargetMember = GetTargetMemberInfo(TargetExpression);
+        TargetSetter = CreateTargetSetter(TargetMember);
     }
 
     public Expression<Func<TTarget, TMember>> TargetExpression { get; }
@@ -81,7 +56,7 @@ public sealed class MemberMap<TSource, TTarget, TMember> : IMemberMap<TSource, T
 
     public Action<TTarget, TMember> TargetSetter { get; }
 
-    public MemberInfo TargetMemberInfo { get; }
+    public MemberInfo TargetMember { get; }
 
     public IdentityStrength IdentityStrength { get; internal set; } = IdentityStrength.None;
 
@@ -89,47 +64,17 @@ public sealed class MemberMap<TSource, TTarget, TMember> : IMemberMap<TSource, T
 
     public bool ApplyOnUpdate { get; internal set; } = true;
 
-    public Func<SyncContext<TSource, TTarget>, bool>? Condition { get; internal set; }
-
-    MemberInfo IMemberMap<TSource, TTarget>.TargetMember => TargetMemberInfo;
-
-    IdentityStrength IMemberMap<TSource, TTarget>.IdentityStrength => IdentityStrength;
-
-    bool IMemberMap<TSource, TTarget>.ApplyOnCreate => ApplyOnCreate;
-
-    bool IMemberMap<TSource, TTarget>.ApplyOnUpdate => ApplyOnUpdate;
-
-    public IMemberChange Compare(TSource source, TTarget target, SyncOperation operation)
+    public IMemberChange? Compare(TSource source, TTarget target)
     {
         TMember sourceValue = SourceGetter(source);
         TMember targetValue = TargetGetter(target);
 
-        if (!EqualityComparer<TMember>.Default.Equals(sourceValue, targetValue))
-        {
-            return new MemberChange<TMember>(
-                TargetMemberInfo.Name,
-                operation == SyncOperation.Create ? MemberChangeKind.Create : MemberChangeKind.Update,
+        return !EqualityComparer<TMember>.Default.Equals(sourceValue, targetValue)
+            ? new MemberChange<TMember>(
+                TargetMember.Name,
                 targetValue,
-                sourceValue);
-        }
-
-        return new MemberChange<TMember>(
-            TargetMemberInfo.Name,
-            MemberChangeKind.NoChange,
-            targetValue,
-            sourceValue);
-    }
-
-    public void Apply(TSource source, TTarget target) => TargetSetter(target, SourceGetter(source));
-
-    public bool CanApply(SyncContext<TSource, TTarget> context)
-    {
-        return context.Operation switch
-        {
-            SyncOperation.Create => ApplyOnCreate,
-            SyncOperation.Update => ApplyOnUpdate,
-            _ => false,
-        } && (Condition is null || Condition(context));
+                sourceValue)
+            : null;
     }
 
     private static MemberInfo GetTargetMemberInfo(Expression<Func<TTarget, TMember>> targetExpression)

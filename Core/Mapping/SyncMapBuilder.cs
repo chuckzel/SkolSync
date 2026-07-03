@@ -54,10 +54,4 @@ public sealed class MemberMapBuilder<TSource, TTarget, TMember>
         memberMap.ApplyOnUpdate = apply;
         return this;
     }
-
-    public MemberMapBuilder<TSource, TTarget, TMember> When(Func<SyncContext<TSource, TTarget>, bool> predicate)
-    {
-        memberMap.Condition = memberMap.Condition != null ? context => memberMap.Condition(context) && predicate(context) : predicate;
-        return this;
-    }
 }
