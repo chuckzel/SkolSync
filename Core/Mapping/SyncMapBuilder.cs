@@ -1,0 +1,63 @@
+using System.Linq.Expressions;
+
+namespace SkolSync.Core.Mapping;
+
+public sealed class SyncMapBuilder<TSource, TTarget>
+{
+    private readonly List<IMemberMap<TSource, TTarget>> memberMaps = new();
+
+    public MemberMapBuilder<TSource, TTarget, TMember> Map<TMember>(
+        Func<TSource, TMember> sourceGetter,
+        Expression<Func<TTarget, TMember>> targetExpression)
+    {
+        MemberMap<TSource, TTarget, TMember> memberMap = new(sourceGetter, targetExpression);
+        memberMaps.Add(memberMap);
+
+        return new MemberMapBuilder<TSource, TTarget, TMember>(memberMap);
+    }
+
+    public SyncMap<TSource, TTarget> Build()
+    {
+        return new SyncMap<TSource, TTarget>(memberMaps);
+    }
+}
+
+public sealed class MemberMapBuilder<TSource, TTarget, TMember>
+{
+    private readonly MemberMap<TSource, TTarget, TMember> memberMap;
+
+    internal MemberMapBuilder(MemberMap<TSource, TTarget, TMember> memberMap)
+    {
+        this.memberMap = memberMap;
+    }
+
+    public MemberMapBuilder<TSource, TTarget, TMember> AsStrongIdentity()
+    {
+        memberMap.IdentityStrength = IdentityStrength.Strong;
+        return this;
+    }
+
+    public MemberMapBuilder<TSource, TTarget, TMember> AsWeakIdentity()
+    {
+        memberMap.IdentityStrength = IdentityStrength.Weak;
+        return this;
+    }
+
+    public MemberMapBuilder<TSource, TTarget, TMember> ApplyOnCreate(bool apply = true)
+    {
+        memberMap.ApplyOnCreate = apply;
+        return this;
+    }
+
+    public MemberMapBuilder<TSource, TTarget, TMember> ApplyOnUpdate(bool apply = true)
+    {
+        memberMap.ApplyOnUpdate = apply;
+        return this;
+    }
+
+    public MemberMapBuilder<TSource, TTarget, TMember> When(Func<SyncContext<TSource, TTarget>, bool> predicate)
+    {
+        memberMap.Condition = memberMap.Condition != null ? context => memberMap.Condition(context) && predicate(context) : predicate;
+        return this;
+    }
+}
