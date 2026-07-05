@@ -1,4 +1,4 @@
-namespace SkolSync.Core.Mapping;
+namespace SkolSync.Core.Reconciliation;
 
 public interface IMemberChange
 {
