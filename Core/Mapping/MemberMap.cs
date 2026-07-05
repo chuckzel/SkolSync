@@ -3,36 +3,6 @@ using System.Reflection;
 
 namespace SkolSync.Core.Mapping;
 
-public enum IdentityStrength
-{
-    None = 0,
-    Weak = 1,
-    Strong = 2,
-}
-
-public interface IMemberChange
-{
-    string MemberName { get; }
-}
-
-public sealed record MemberChange<TMember>(
-    string MemberName,
-    TMember? CurrentValue,
-    TMember DesiredValue) : IMemberChange;
-
-public interface IMemberMap<TSource, TTarget>
-{
-    MemberInfo TargetMember { get; }
-
-    IdentityStrength IdentityStrength { get; }
-
-    bool ApplyOnCreate { get; }
-
-    bool ApplyOnUpdate { get; }
-
-    IMemberChange? Compare(TSource source, TTarget target);
-}
-
 public sealed class MemberMap<TSource, TTarget, TMember> : IMemberMap<TSource, TTarget>
 {
     public MemberMap(
@@ -41,7 +11,6 @@ public sealed class MemberMap<TSource, TTarget, TMember> : IMemberMap<TSource, T
     {
         SourceGetter = sourceGetter;
         TargetExpression = targetExpression;
-
         TargetGetter = TargetExpression.Compile();
 
         TargetMember = GetTargetMemberInfo(TargetExpression);
@@ -63,19 +32,6 @@ public sealed class MemberMap<TSource, TTarget, TMember> : IMemberMap<TSource, T
     public bool ApplyOnCreate { get; internal set; } = true;
 
     public bool ApplyOnUpdate { get; internal set; } = true;
-
-    public IMemberChange? Compare(TSource source, TTarget target)
-    {
-        TMember sourceValue = SourceGetter(source);
-        TMember targetValue = TargetGetter(target);
-
-        return !EqualityComparer<TMember>.Default.Equals(sourceValue, targetValue)
-            ? new MemberChange<TMember>(
-                TargetMember.Name,
-                targetValue,
-                sourceValue)
-            : null;
-    }
 
     private static MemberInfo GetTargetMemberInfo(Expression<Func<TTarget, TMember>> targetExpression)
     {
@@ -109,4 +65,7 @@ public sealed class MemberMap<TSource, TTarget, TMember> : IMemberMap<TSource, T
             _ => throw new ArgumentException("The target member must be writable.", nameof(targetMember)),
         };
     }
+
+    public TReturn Apply<TReturn>(IMemberMapOperation<TSource, TTarget, TReturn> operation)
+        => operation.Apply(this);
 }
