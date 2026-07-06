@@ -33,6 +33,8 @@ public sealed class MemberMap<TSource, TTarget, TMember> : IMemberMap<TSource, T
 
     public bool ApplyOnUpdate { get; internal set; } = true;
 
+    public TMember UnsetValue { get; internal set; } = default!;
+
     private static MemberInfo GetTargetMemberInfo(Expression<Func<TTarget, TMember>> targetExpression)
     {
         Expression body = targetExpression.Body;
