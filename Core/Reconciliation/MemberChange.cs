@@ -1,11 +1,19 @@
+using SkolSync.Core.Mapping;
+
 namespace SkolSync.Core.Reconciliation;
 
 public interface IMemberChange<TTarget>
 {
-    string MemberName { get; }
+    void Apply(TTarget target);
 }
 
 public sealed record MemberChange<TSource, TTarget, TMember>(
-    string MemberName,
+    MemberMap<TSource, TTarget, TMember> MemberMap,
     TMember? CurrentValue,
-    TMember DesiredValue) : IMemberChange<TTarget>;
+    TMember DesiredValue) : IMemberChange<TTarget>
+{
+    public void Apply(TTarget target)
+    {
+        MemberMap.TargetSetter(target, DesiredValue);
+    }
+}

@@ -12,7 +12,7 @@ public record struct CompareOperation<TSource, TTarget>(TSource Source, TTarget?
 
         return !EqualityComparer<TMember>.Default.Equals(sourceValue, targetValue)
             ? new MemberChange<TSource, TTarget, TMember>(
-                memberMap.TargetMember.Name,
+                memberMap,
                 targetValue,
                 sourceValue)
             : null;
