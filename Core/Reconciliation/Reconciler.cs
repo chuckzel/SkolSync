@@ -19,19 +19,19 @@ public class Reconciler<TSource, TTarget>
         {
             return target is null
                 ? null
-                : new RemoveObjectChange<TSource, TTarget> { Target = target };
+                : new RemoveObjectChange<TTarget> { Target = target };
         }
 
         var memberMaps = target is null ? _createMemberMaps : _updateMemberMaps;
         CompareOperation<TSource, TTarget> compareOperation = new(source, target);
-        IReadOnlyList<IMemberChange> memberChanges = [.. memberMaps
+        IReadOnlyList<IMemberChange<TTarget>> memberChanges = [.. memberMaps
             .Select(m => m.Apply(compareOperation))
-            .OfType<IMemberChange>()];
+            .OfType<IMemberChange<TTarget>>()];
 
         return memberChanges.Count > 0
             ? target is null
-                ? new AddObjectChange<TSource, TTarget> { Target = default!, MemberChanges = memberChanges }
-                : new UpdateObjectChange<TSource, TTarget> { Target = target, MemberChanges = memberChanges }
+                ? new AddObjectChange<TTarget> { MemberChanges = memberChanges }
+                : new UpdateObjectChange<TTarget> { Target = target, MemberChanges = memberChanges }
             : null;
     }
 
