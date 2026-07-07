@@ -18,7 +18,7 @@ public sealed class SyncMapBuilder<TSource, TTarget>
 
     public SyncMap<TSource, TTarget> Build()
     {
-        return new SyncMap<TSource, TTarget>(_memberMaps);
+        throw new NotImplementedException();
     }
 }
 
