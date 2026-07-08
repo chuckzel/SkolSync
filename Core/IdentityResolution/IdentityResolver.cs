@@ -3,9 +3,9 @@ using SkolSync.Core.Mapping;
 namespace SkolSync.Core.IdentityResolution;
 
 
-public class IdentityResolver<TSource, TTarget>(SyncMap<TSource, TTarget> syncMap)
+public class IdentityResolver<TSource, TTarget>(ObjectMap<TSource, TTarget> objectMap)
 {
-    private readonly IReadOnlyList<IMemberMap<TSource, TTarget>> _identityMaps = [.. syncMap.MemberMaps.Where(m => m.IdentityStrength != IdentityStrength.None)];
+    private readonly IReadOnlyList<IMemberMap<TSource, TTarget>> _identityMaps = [.. objectMap.MemberMaps.Where(m => m.IdentityStrength != IdentityStrength.None)];
 
     public IEnumerable<(TSource? Source, TTarget? Target)> Resolve(IEnumerable<TSource> sources, IEnumerable<TTarget> targets)
     {

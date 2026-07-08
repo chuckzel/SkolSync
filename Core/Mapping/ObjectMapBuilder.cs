@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 
 namespace SkolSync.Core.Mapping;
 
-public sealed class SyncMapBuilder<TSource, TTarget>
+public sealed class ObjectMapBuilder<TSource, TTarget>
 {
     private readonly List<IMemberMap<TSource, TTarget>> _memberMaps = new();
 
@@ -16,7 +16,7 @@ public sealed class SyncMapBuilder<TSource, TTarget>
         return new MemberMapBuilder<TSource, TTarget, TMember>(memberMap);
     }
 
-    public SyncMap<TSource, TTarget> Build()
+    public ObjectMap<TSource, TTarget> Build()
     {
         throw new NotImplementedException();
     }

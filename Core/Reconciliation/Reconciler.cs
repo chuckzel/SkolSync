@@ -4,14 +4,12 @@ namespace SkolSync.Core.Reconciliation;
 
 public class Reconciler<TSource, TTarget>
 {
-    public SyncMap<TSource, TTarget> SyncMap { get; }
     private readonly IReadOnlyList<IMemberMap<TSource, TTarget>> _createMemberMaps;
     private readonly IReadOnlyList<IMemberMap<TSource, TTarget>> _updateMemberMaps;
-    public Reconciler(SyncMap<TSource, TTarget> syncMap)
+    public Reconciler(ObjectMap<TSource, TTarget> objectMap)
     {
-        SyncMap = syncMap;
-        _createMemberMaps = [.. syncMap.MemberMaps.Where(m => m.ApplyOnCreate)];
-        _updateMemberMaps = [.. syncMap.MemberMaps.Where(m => m.ApplyOnUpdate)];
+        _createMemberMaps = [.. objectMap.MemberMaps.Where(m => m.ApplyOnCreate)];
+        _updateMemberMaps = [.. objectMap.MemberMaps.Where(m => m.ApplyOnUpdate)];
     }
     public IObjectChange<TTarget>? Reconcile(TSource? source, TTarget? target)
     {
