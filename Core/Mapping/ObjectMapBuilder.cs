@@ -24,7 +24,7 @@ public sealed class ObjectMapBuilder<TSource, TTarget>
 
 public sealed class MemberMapBuilder<TSource, TTarget, TMember>
 {
-    private readonly MemberMap<TSource, TTarget, TMember> _memberMap;
+    private MemberMap<TSource, TTarget, TMember> _memberMap;
 
     internal MemberMapBuilder(MemberMap<TSource, TTarget, TMember> memberMap)
     {
@@ -33,25 +33,25 @@ public sealed class MemberMapBuilder<TSource, TTarget, TMember>
 
     public MemberMapBuilder<TSource, TTarget, TMember> AsStrongIdentity()
     {
-        _memberMap.IdentityStrength = IdentityStrength.Strong;
+        _memberMap = _memberMap with { IdentityStrength = IdentityStrength.Strong };
         return this;
     }
 
     public MemberMapBuilder<TSource, TTarget, TMember> AsWeakIdentity()
     {
-        _memberMap.IdentityStrength = IdentityStrength.Weak;
+        _memberMap = _memberMap with { IdentityStrength = IdentityStrength.Weak };
         return this;
     }
 
     public MemberMapBuilder<TSource, TTarget, TMember> ApplyOnCreate(bool apply = true)
     {
-        _memberMap.ApplyOnCreate = apply;
+        _memberMap = _memberMap with { ApplyOnCreate = apply };
         return this;
     }
 
     public MemberMapBuilder<TSource, TTarget, TMember> ApplyOnUpdate(bool apply = true)
     {
-        _memberMap.ApplyOnUpdate = apply;
+        _memberMap = _memberMap with { ApplyOnUpdate = apply };
         return this;
     }
 }

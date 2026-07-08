@@ -2,4 +2,8 @@
   <Folder Name="/Core/">
     <Project Path="Core/SkolSync.Core.csproj" />
   </Folder>
+  <Folder Name="/test/" />
+  <Folder Name="/test/Core/">
+    <Project Path="test/Core/SkolSync.Core.Tests.csproj" />
+  </Folder>
 </Solution>

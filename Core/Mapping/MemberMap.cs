@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace SkolSync.Core.Mapping;
 
-public sealed class MemberMap<TSource, TTarget, TMember> : IMemberMap<TSource, TTarget>
+public sealed record MemberMap<TSource, TTarget, TMember> : IMemberMap<TSource, TTarget>
 {
     public MemberMap(
         Func<TSource, TMember> sourceGetter,
@@ -27,13 +27,13 @@ public sealed class MemberMap<TSource, TTarget, TMember> : IMemberMap<TSource, T
 
     public MemberInfo TargetMember { get; }
 
-    public IdentityStrength IdentityStrength { get; internal set; } = IdentityStrength.None;
+    public IdentityStrength IdentityStrength { get; init; } = IdentityStrength.None;
 
-    public bool ApplyOnCreate { get; internal set; } = true;
+    public bool ApplyOnCreate { get; init; } = true;
 
-    public bool ApplyOnUpdate { get; internal set; } = true;
+    public bool ApplyOnUpdate { get; init; } = true;
 
-    public TMember UnsetValue { get; internal set; } = default!;
+    public TMember UnsetValue { get; init; } = default!;
 
     private static MemberInfo GetTargetMemberInfo(Expression<Func<TTarget, TMember>> targetExpression)
     {
