@@ -6,4 +6,7 @@
   <Folder Name="/test/Core/">
     <Project Path="test/Core/SkolSync.Core.Tests.csproj" />
   </Folder>
+  <Folder Name="/zstlum/">
+    <Project Path="zstlum/BakaDB/BakaDB.csproj" />
+  </Folder>
 </Solution>

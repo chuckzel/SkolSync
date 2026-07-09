@@ -1,5 +1,9 @@
 root = true
 
+# Ignore generated code
+[zstlum/BakaDB/Generated/*]
+generated_code = true
+
 # All files
 [*]
 indent_style = space
