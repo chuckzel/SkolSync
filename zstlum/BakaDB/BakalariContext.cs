@@ -11,6 +11,8 @@ namespace BakaDB;
 /// </remarks>
 public partial class BakalariContext : DbContext
 {
+    public BakalariContext() { }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
