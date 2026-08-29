@@ -11,13 +11,18 @@ public class IdentityResolver<TSource, TTarget>(ObjectMap<TSource, TTarget> obje
     {
         HashSet<TTarget> unmatchedTargets = [.. targets];
         IList<MatchLookup<TSource, TTarget>> lookups = [];
+        HashSet<TTarget>? targetsWithUnsetStrongKey = null;
         foreach (var memberMap in _identityMaps)
         {
             GetMatchLookupOperation<TSource, TTarget> matchOperation = new(targets);
             var lookup = memberMap.Apply(matchOperation);
             lookups.Add(lookup);
             targets = lookup.UnsetTargets;
+            //TODO: support composite matching keys
+            targetsWithUnsetStrongKey ??= [.. lookup.UnsetTargets];
         }
+
+        targetsWithUnsetStrongKey ??= unmatchedTargets;
 
         foreach (var source in sources)
         {
@@ -31,7 +36,7 @@ public class IdentityResolver<TSource, TTarget>(ObjectMap<TSource, TTarget> obje
             unmatchedTargets.Remove(target);
             yield return (source, target);
         }
-        foreach (var unmatchedTarget in unmatchedTargets)
+        foreach (var unmatchedTarget in unmatchedTargets.Except(targetsWithUnsetStrongKey))
         {
             yield return (default, unmatchedTarget);
         }
