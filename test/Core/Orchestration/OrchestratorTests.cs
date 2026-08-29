@@ -175,4 +175,56 @@ public class OrchestratorTests
             new BasicModel.Target("1", "john.doe@example.com", "passJohn1")
         ]);
     }
+
+    [Test]
+    public async Task Execute_WithEmptyStrongKeyItem_RemainsUnchanged()
+    {
+        var syncMap = WeakResolutionModel.Map;
+        List<WeakResolutionModel.Source> sourceItems = [];
+        List<WeakResolutionModel.Target> targetItems = [
+            new WeakResolutionModel.Target("0", null, "untracked.account@example.com", "defaultPassword")
+        ];
+        CollectionConnector<WeakResolutionModel.Source> source = new([.. sourceItems], () => throw new NotImplementedException("bad api, will not get called"));
+        CollectionConnector<WeakResolutionModel.Target> target = new([.. targetItems], () => new("", "", "", "defaultPassword"));
+        SyncDefinition<WeakResolutionModel.Source, WeakResolutionModel.Target> syncDef = new()
+        {
+            Map = syncMap,
+            SourceConnector = source,
+            TargetConnector = target,
+            WriteConnectors = [target]
+        };
+
+        Orchestrator<WeakResolutionModel.Source, WeakResolutionModel.Target> orchestrator = new(syncDef);
+        await orchestrator.ExecuteAsync();
+
+        await Assert.That(target.Collection).IsEquivalentTo(targetItems);
+    }
+
+    [Test]
+    public async Task Execute_WithEmptyStrongKeyItem_SetsStrongKey()
+    {
+        var syncMap = WeakResolutionModel.Map;
+        List<WeakResolutionModel.Source> sourceItems = [
+            new WeakResolutionModel.Source(1, "John", "Doe")
+        ];
+        List<WeakResolutionModel.Target> targetItems = [
+            new WeakResolutionModel.Target("i1", null, "john.doe@example.com", "passJohn1")
+        ];
+        CollectionConnector<WeakResolutionModel.Source> source = new([.. sourceItems], () => throw new NotImplementedException("bad api, will not get called"));
+        CollectionConnector<WeakResolutionModel.Target> target = new([.. targetItems], () => new("", "", "", "defaultPassword"));
+        SyncDefinition<WeakResolutionModel.Source, WeakResolutionModel.Target> syncDef = new()
+        {
+            Map = syncMap,
+            SourceConnector = source,
+            TargetConnector = target,
+            WriteConnectors = [target]
+        };
+
+        Orchestrator<WeakResolutionModel.Source, WeakResolutionModel.Target> orchestrator = new(syncDef);
+        await orchestrator.ExecuteAsync();
+
+        await Assert.That(target.Collection).IsEquivalentTo([
+            new WeakResolutionModel.Target("i1", "1", "john.doe@example.com", "passJohn1")
+        ]);
+    }
 }
