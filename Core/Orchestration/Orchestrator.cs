@@ -19,7 +19,7 @@ public class Orchestrator<TSource, TTarget>(SyncDefinition<TSource, TTarget> syn
         var resolvedMatches = identityResolver.Resolve(sources, targets);
 
         Reconciler<TSource, TTarget> reconciler = new(_syncDef.Map);
-        var changes = reconciler.Reconcile(resolvedMatches);
+        var changes = reconciler.Reconcile(resolvedMatches).ToList();
 
         foreach (var writeConnector in _syncDef.WriteConnectors)
         {
