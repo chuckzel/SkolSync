@@ -10,22 +10,34 @@ public sealed record MemberMap<TSource, TTarget, TMember> : IMemberMap<TSource, 
         Expression<Func<TTarget, TMember>> targetExpression)
     {
         SourceGetter = sourceGetter;
-        TargetExpression = targetExpression;
-        TargetGetter = TargetExpression.Compile();
+        TargetGetter = targetExpression.Compile();
 
-        TargetMember = GetTargetMemberInfo(TargetExpression);
-        TargetSetter = CreateTargetSetter(TargetMember);
+        MemberInfo targetMember = GetTargetMemberInfo(targetExpression);
+        TargetMemberName = targetMember.Name;
+        TargetSetter = CreateTargetSetter(targetMember);
     }
 
-    public Expression<Func<TTarget, TMember>> TargetExpression { get; }
+    public MemberMap(
+        Func<TSource, TMember> sourceGetter,
+        Func<TTarget, TMember> targetGetter,
+        Action<TTarget, TMember> targetSetter,
+        string targetMemberName)
+    {
+        SourceGetter = sourceGetter;
+        TargetGetter = targetGetter;
+        TargetSetter = targetSetter;
+        TargetMemberName = targetMemberName;
+    }
+
+    //public Expression<Func<TTarget, TMember>> TargetExpression { get; }
 
     public Func<TSource, TMember> SourceGetter { get; }
 
     public Func<TTarget, TMember> TargetGetter { get; }
 
-    public Action<TTarget, TMember> TargetSetter { get; }
+    public Action<TTarget, TMember> TargetSetter { get; init; }
 
-    public MemberInfo TargetMember { get; }
+    public string TargetMemberName { get; }
 
     public IdentityStrength IdentityStrength { get; init; } = IdentityStrength.None;
 

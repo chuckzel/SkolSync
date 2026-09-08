@@ -4,8 +4,6 @@ namespace SkolSync.Core.Mapping;
 
 public interface IMemberMap<TSource, TTarget>
 {
-    MemberInfo TargetMember { get; }
-
     IdentityStrength IdentityStrength { get; }
 
     bool ApplyOnCreate { get; }

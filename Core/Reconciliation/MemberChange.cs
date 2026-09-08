@@ -19,6 +19,6 @@ public sealed record MemberChange<TSource, TTarget, TMember>(
 
     public override string ToString()
     {
-        return $"{MemberMap.TargetMember.Name}: {CurrentValue} -> {DesiredValue}";
+        return $"{MemberMap.TargetMemberName}: {CurrentValue} -> {DesiredValue}";
     }
 }
